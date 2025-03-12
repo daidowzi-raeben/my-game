@@ -41,11 +41,23 @@ import axios from "axios";
 
 const userMessage = ref("");
 const chats = ref([]);
-
 const userId = 1;
 const characterId = 7;
-
 let sending = false;
+
+// 감정 태그 제거하는 함수
+const removeEmotionTag = (message) => {
+  return message.replace(/\s*\[감정:\s*[^\]]+\]\s*$/, ""); // 감정 태그 제거
+};
+
+// 오디오 자동 재생 함수
+const playAudio = (audioFileName) => {
+  if (!audioFileName) return;
+  const audio = new Audio(
+    `${import.meta.env.VITE_API_URL_DATA}${audioFileName}`
+  );
+  audio.play().catch((error) => console.error("오디오 재생 오류:", error));
+};
 
 const sendMessage = async () => {
   if (sending || !userMessage.value.trim()) return;
@@ -62,7 +74,12 @@ const sendMessage = async () => {
     userMessage.value = "";
 
     if (res.data.status === "success") {
-      chats.value.push({ role: "assistant", content: res.data.response });
+      const cleanedResponse = removeEmotionTag(res.data.response); // 감정 태그 제거
+      chats.value.push({ role: "assistant", content: cleanedResponse });
+
+      if (res.data.audio) {
+        playAudio(res.data.audio); // 오디오 자동 재생
+      }
     } else {
       chats.value.push({ role: "assistant", content: res.data.message });
     }
