@@ -26,6 +26,12 @@
       <input
         type="text"
         class="form-control"
+        v-model="characterId"
+        style="max-width: 35px"
+      />
+      <input
+        type="text"
+        class="form-control"
         v-model="userMessage"
         @keyup.enter="handleEnter"
         placeholder="메시지를 입력하세요"
@@ -42,7 +48,8 @@ import axios from "axios";
 const userMessage = ref("");
 const chats = ref([]);
 const userId = 1;
-const characterId = 7;
+const characterId = ref("");
+characterId.value = 1;
 let sending = false;
 
 // 감정 태그 제거하는 함수
@@ -68,7 +75,7 @@ const sendMessage = async () => {
   try {
     const res = await axios.post(import.meta.env.VITE_API_URL, {
       user_id: userId,
-      character_id: characterId,
+      character_id: characterId.value,
       message: userMessage.value,
     });
     userMessage.value = "";
